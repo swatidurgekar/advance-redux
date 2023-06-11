@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { setAutoFreeze } from "immer";
-const initialState = { showCart: false, items: [], writable: true };
+const initialState = { showCart: false, items: [] };
 
 const CartSlice = createSlice({
   name: "cart",
