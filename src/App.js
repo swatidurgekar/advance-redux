@@ -1,54 +1,37 @@
 import Cart from "./components/Cart/Cart";
 import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import Notification from "./components/UI/Notification";
 import { useState } from "react";
-import { useRef } from "react";
+import { cartActions } from "./components/Store/Cart";
+import { sendCartData } from "./components/Store/Cart";
+import { fetchData } from "./components/Store/Cart";
 
 function App() {
+  const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
-  const [initialCart, setInitialCart] = useState(cart);
-  const [notification, setNotification] = useState(false);
-  const status = useRef();
-  const title = useRef();
-  const message = useRef();
+  const useNotification = useSelector((state) => state.ui.notification);
+  const [initialCart] = useState(cart);
 
   useEffect(() => {
-    if (cart !== initialCart) {
-      setNotification(true);
-      fetch(
-        "https://advanced-redux-5aa37-default-rtdb.firebaseio.com/cart.json",
-        {
-          method: "PUT",
-          body: JSON.stringify(cart),
-        }
-      ).then((res) => {
-        res.json().then(() => {
-          if (res.ok) {
-            status.current = "success";
-            title.current = "success";
-            message.current = "Sent cart data successfully";
-            setNotification(false);
-          } else {
-            status.current = "error";
-            title.current = "Failed";
-            message.current = "Failed to send cart data";
-            setNotification(false);
-          }
-        });
-      });
+    if (initialCart !== cart) {
+      dispatch(sendCartData(cart));
     }
-  }, [cart.items]);
+  }, [cart.items, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchData(cartActions.refreshCart));
+  }, [dispatch]);
 
   return (
     <Layout>
-      {notification && (
+      {useNotification && (
         <Notification
-          status={status.current}
-          title={title.current}
-          message={message.current}
+          status={useNotification.status}
+          title={useNotification.title}
+          message={useNotification.message}
         />
       )}
       <Cart />
